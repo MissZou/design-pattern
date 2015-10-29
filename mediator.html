@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>mediator</title>
+</head>
+
+<body>
+    <p id="results"></p>
+    <script type="text/javascript">
+    function Player(name){
+	this.points=0;
+	this.name=name;
+}
+
+Player.prototype.play=function(){
+	this.points+=1;
+	mediator.played();
+};
+
+var scoreboard={
+	//待更新的HTML元素
+	element:document.getElementById("results"),
+
+	//更新得分显示
+	update:function(score){
+		var i,msg="";
+		for(i in score){
+			if(score.hasOwnProperty(i)){
+				msg+=i+score[i]+"<br>";
+			}
+		}
+		this.element.innerHTML=msg;
+
+	}
+};
+
+var mediator={
+	//所有的玩家 player对象
+	players:{},
+
+	//初始化
+	setup:function(){
+		var players=this.players;
+		players.home=new Player("Home");
+		players.guest=new Player("Guest");
+	},
+
+	//如果有人玩，则更新得分值
+	played:function(){
+		var players=this.players,
+		score={
+			Home:players.home.points,
+			Guest:players.guest.points
+		};
+		scoreboard.update(score);
+	},
+
+	//处理用户交互
+	keypress:function(e){
+		var e=e||window.event;
+		if(e.which===49){   //按键1
+			mediator.players.home.play();
+			return;
+		}
+		if(e.which===48){   //按键0
+			mediator.players.guest.play();
+			return;
+		}
+	}
+};
+
+//运行
+mediator.setup();
+window.onkeypress=mediator.keypress;
+
+//游戏在30秒内结束
+setTimeout(function(){
+	window.onkeypress=null;
+	alert("Game Over!");
+},30000);
+    </script>
+</body>
+
+</html>
